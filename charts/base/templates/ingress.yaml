@@ -1,0 +1,64 @@
+{{- if .Values.ingress.create -}}
+{{- $fullName := include "base.fullname" . -}}
+{{- $fullName = printf "%s-svc" $fullName -}}
+{{- $svcPort := .Values.service.port -}}
+{{- $rewriteTarget := .Values.ingress.rewrite.target }}
+{{- $ingressClassName := .Values.ingress.className }}
+
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ $fullName }}
+  labels:
+    {{- include "base.labels" . | nindent 4 }}
+  {{- if .Values.ingress.annotations }}
+  annotations:
+  {{- range $key, $value := .Values.ingress.annotations }}
+    {{- if and $rewriteTarget (eq "nginx.ingress.kubernetes.io/rewrite-target" $key ) }}
+    {{- printf "%s: %s" $key $rewriteTarget | nindent 4 }}
+    {{- else if and $rewriteTarget (eq "nginx.ingress.kubernetes.io/use-regex" $key )}}
+    {{- printf "%s: %s" $key "true" | nindent 4 }}
+    {{- printf "%s: %s" $key "true" | nindent 4 }}
+    {{- else if and $ingressClassName (eq "kubernetes.io/ingress.class" $key )}}
+    {{- printf "%s: %s" $key $ingressClassName | nindent 4 }}
+    {{- else }}
+    {{- printf "%s: %s" $key $value | nindent 4 }}
+    {{- end }}
+  {{- end }}
+  {{- end }}
+spec:
+  {{- if .Values.ingress.tls }}
+  tls:
+    {{- range .Values.ingress.tls }}
+    - hosts:
+        {{- range .hosts }}
+        - {{ . | quote }}
+        {{- end }}
+      secretName: {{ .secretName }}
+    {{- end }}
+  {{- end }}
+  rules:
+    {{- range .Values.ingress.hosts }}
+    - host: {{ .host | quote }}
+      http:
+        paths:
+          {{- range .paths }}
+          - path: {{ .path }}
+            pathType: {{ .pathType }}
+            backend:
+              service:
+                {{- if .backend.serviceName }}
+                name: {{ .backend.serviceName }}
+                {{- else }}
+                name: {{ $fullName }}
+                {{- end }}
+                {{- if .backend.port }}
+                port:
+                  number: {{ .backend.port }}
+                {{- else }}
+                port:
+                  number: {{ $svcPort }}
+                {{- end }}
+          {{- end }}
+    {{- end }}
+{{- end }}

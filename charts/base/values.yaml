@@ -1,0 +1,201 @@
+# Default values for base.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+env: uat
+
+deployment:
+  create: true
+  replicaCount: 1
+
+image:
+  repository: nginx
+  pullPolicy: Always
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: "latest"
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: false
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  # By default, if not specified or it's empty, will generate a name with pattern of {{nameOverride}}-sa
+  name: ""
+
+podAnnotations: {}
+
+podSecurityContext: {}
+  # fsGroup: 2000
+
+securityContext:
+  # capabilities:
+  #   drop:
+  #   - ALL
+  # readOnlyRootFilesystem: true
+   runAsNonRoot: true
+   runAsUser: 1000
+
+service:
+  create: true
+  type: ClusterIP
+  port: 80
+  targetPort: 8080
+  headless: false
+
+ingress:
+  create: false
+  # By default, will set it as nginx
+  className: ""
+  annotations:
+     kubernetes.io/ingress.class: nginx
+     kubernetes.io/tls-acme: "true"
+     nginx.ingress.kubernetes.io/proxy-connect-timeout: "60s"
+     nginx.ingress.kubernetes.io/proxy-read-timeout: "60s"
+     nginx.ingress.kubernetes.io/proxy-send-timeout: "60s"
+     nginx.org/client-max-body-size: "4m"
+
+     # Better to consider the pathType=ImplementationSpecific, below is for pathType=Prefix.
+     nginx.ingress.kubernetes.io/rewrite-target: /$1
+#     nginx.ingress.kubernetes.io/ssl-redirect: true
+     nginx.ingress.kubernetes.io/use-regex: true
+  hosts:
+    - host: gw.it-meta.space
+      paths:
+        - path: /
+#          pathType: ImplementationSpecific
+          pathType: Prefix
+          # by default set service port as 80
+          backend:
+            serviceName:
+            port: 80
+  tls:
+    - secretName: gw-tls
+      hosts:
+        - gw.it-meta.space
+  rewrite:
+    target: "/$1"
+# resource for application, if want to set it for sidecar, please define a new root variable for each sidecar.
+resources: {}
+  # We usually recommend not to specify default resources and to leave this as a conscious
+  # choice for the user. This also increases chances charts run on environments with little
+  # resources, such as Minikube. If you do want to specify resources, uncomment the following
+  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+  # limits:
+  #   cpu: 100m
+  #   memory: 128Mi
+  # requests:
+  #   cpu: 100m
+  #   memory: 128Mi
+
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 100
+#  targetCPUUtilizationPercentage: 80
+  targetMemoryUtilizationPercentage: 80
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+volumes: {}
+#  - name: jwt-rsa-keystore
+#    secret:
+#      secretName: jwt-rsa
+#      items:
+#        - key: rsa.pem
+#          path: rsa.pem
+#  - name: order-service-cm
+#    configMap:
+#      name: order-service
+#  - name: order-service-secret
+#    secret:
+#      secretName: order-service
+
+volumeMounts: {}
+#  - mountPath: "/etc/keystore"
+#    name: jwt-rsa-keystore
+#    readOnly: true
+
+readinessProbe: {}
+#  httpGet:
+#    port: 8080
+#    path: /actuator/health
+#  failureThreshold: 5
+#  successThreshold: 3
+#  initialDelaySeconds: 90
+#  periodSeconds: 10
+livenessProbe: {}
+startupProbe: {}
+
+labels: []
+
+envVar: {}
+#  - name: SPRING_PROFILES_ACTIVE
+#    value: k8s
+#  - name: DB_USERNAME
+#    valueFrom:
+#      secretKeyRef:
+#        key: "spring.datasource.username"
+#        name: db-secret
+#  - name: DB_PASSWORD
+#    valueFrom:
+#      secretKeyRef:
+#        key: "spring.datasource.password"
+#        name: db-secret
+#  - name: JWT_KEY_PATH
+#    value: "file:/etc/keystore/rsa.pem"
+#  - name: SECRET_NAME
+#    value: db-secret
+
+initContainers: {}
+
+# Storage class based only
+persistentVolumes:
+  create: false
+  claims:
+    - name: pvc-01
+      accessModes: ["ReadWriteMany"]
+      resources:
+        requests:
+          storage: 1Gi
+      storageClassName: managed-nfs-storage
+    - name: pvc-02
+      accessModes: [ "ReadWriteMany" ]
+      resources:
+        requests:
+          storage: 1Gi
+      storageClassName: managed-nfs-storage
+
+role:
+  create: false
+  name: ""
+#  rules:
+#    - apiGroups:
+#        - ""
+#        - apps
+#      resources:
+#        - pods
+#        - nodes
+#        - deployments
+#        - configmaps
+#        - secrets
+#      verbs:
+#        - get
+#        - list
+#        - watch
+
+roleBinding:
+  create: false
+  name: ""
+  subjects:
+    - kind: ServiceAccount
+      name:
+      namespace:

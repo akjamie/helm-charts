@@ -1,0 +1,24 @@
+{{- if .Values.roleBinding.create }}
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: {{ include "base.roleBindingName" . }}
+{{/*  namespace: {{ default "default" .Values.namespace }}*/}}
+subjects:
+  {{- range .Values.roleBinding.subjects }}
+  - kind: {{default "ServiceAccount" .kind }}
+    {{ if eq .name "" }}
+    name: {{ include "base.serviceAccountName" . }}
+    {{ else }}
+    name: {{ .name}}
+    {{- end }}
+
+    {{- if .namespace }}
+    namespace: {{ .namespace }}
+    {{- end }}
+  {{- end }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: {{ include "base.roleName" . }}
+{{- end }}

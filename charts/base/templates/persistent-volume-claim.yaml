@@ -1,0 +1,20 @@
+{{- if and .Values.persistentVolumes.create .Values.persistentVolumes.claims }}
+{{- range .Values.persistentVolumes.claims }}
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  labels:
+      {{- include "base.labels" . | nindent 4 }}
+  {{- if hasSuffix "-pvc" .name }}
+  name: {{ .name }}
+  {{- else }}
+  name: {{ printf "%s-%s" .name "-pvc"}}
+  {{- end }}
+spec:
+  accessModes: {{ .accessModes }}
+  resources:
+    requests:
+      storage: {{ .resources.requests.storage }}
+  storageClassName: {{ .storageClassName}}
+{{- end }}
+{{- end }}
