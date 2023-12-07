@@ -1,0 +1,96 @@
+base:
+  env: uat
+  nameOverride: order-service
+  #fullnameOverride: book-store
+  role:
+    create: true
+    rules:
+      - apiGroups:
+          - ""
+          - apps
+        resources:
+          - pods
+          - nodes
+          - deployments
+          - configmaps
+          - secrets
+        verbs:
+          - get
+          - list
+          - watch
+  roleBinding:
+    create: true
+    subjects:
+      - kind: ServiceAccount
+        name: default
+  envVar:
+    - name: SPRING_PROFILES_ACTIVE
+      value:
+    - name: DB_USERNAME
+      valueFrom:
+        secretKeyRef:
+          key: "spring.datasource.username"
+          name: db-secret
+    - name: DB_PASSWORD
+      valueFrom:
+        secretKeyRef:
+          key: "spring.datasource.password"
+          name: db-secret
+    - name: JWT_KEY_PATH
+      value: "file:/etc/keystore/rsa.pem"
+    - name: SECRET_NAME
+      value: db-secret
+  volumes:
+    - name: jwt-rsa-keystore
+      secret:
+        secretName: jwt-rsa
+        items:
+          - key: rsa.pem
+            path: rsa.pem
+    - name: order-service-cm
+      configMap:
+        name:
+    - name: order-service-secret
+      secret:
+        secretName:
+  volumeMounts:
+    - mountPath: "/etc/keystore"
+      name: jwt-rsa-keystore
+      readOnly: true
+  readinessProbe:
+    httpGet:
+      port: 8080
+      path: /actuator/health
+    failureThreshold: 3
+    successThreshold: 1
+    periodSeconds: 5
+  livenessProbe:
+    httpGet:
+      port: 8080
+      path: /actuator/health
+    failureThreshold: 3
+    successThreshold: 1
+    periodSeconds: 5
+  startupProbe:
+    httpGet:
+      port: 8080
+      path: /actuator/health
+    failureThreshold: 30
+    successThreshold: 1
+    periodSeconds: 10
+  service:
+    create: true
+    targetPort: 8080
+  ingress:
+    create: true
+    hosts:
+      - host: gw.it-meta.space
+        paths:
+          - path: /order-service/(.*)
+            pathType: Prefix
+            backend:
+              serviceName:
+              port: 80
+    rewrite:
+      target: "/$1"
+
