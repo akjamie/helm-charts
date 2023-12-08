@@ -2,6 +2,16 @@ apiVersion: v1
 entries:
   base:
   - apiVersion: v2
+    appVersion: 1.0.0
+    created: "2023-12-08T08:33:19.291697587Z"
+    description: A Helm chart for Kubernetes
+    digest: 46fb2574d31c090fecee89c522b691cca6be96eee2c22558329f5823ebdb455b
+    name: base
+    type: application
+    urls:
+    - https://github.com/akjamie/helm-charts/releases/download/base-0.1.1/base-0.1.1.tgz
+    version: 0.1.1
+  - apiVersion: v2
     appVersion: 1.16.0
     created: "2023-12-07T10:27:17.946772402Z"
     description: A Helm chart for Kubernetes
@@ -12,6 +22,20 @@ entries:
     - https://github.com/akjamie/helm-charts/releases/download/base-0.1.0/base-0.1.0.tgz
     version: 0.1.0
   order-service:
+  - apiVersion: v2
+    appVersion: 1.0.0
+    created: "2023-12-08T08:33:19.514451275Z"
+    dependencies:
+    - name: base
+      repository: file://../base
+      version: 0.1.1
+    description: A Helm chart for Kubernetes
+    digest: 6c4762b06d2421e921fc473f151882a0652f62b25344523977789aa35a65eaa9
+    name: order-service
+    type: application
+    urls:
+    - https://github.com/akjamie/helm-charts/releases/download/order-service-0.1.1/order-service-0.1.1.tgz
+    version: 0.1.1
   - apiVersion: v2
     appVersion: 1.16.0
     created: "2023-12-07T10:27:18.110211116Z"
@@ -26,4 +50,4 @@ entries:
     urls:
     - https://github.com/akjamie/helm-charts/releases/download/order-service-0.1.0/order-service-0.1.0.tgz
     version: 0.1.0
-generated: "2023-12-07T10:27:18.110241023Z"
+generated: "2023-12-08T08:33:19.514491119Z"
