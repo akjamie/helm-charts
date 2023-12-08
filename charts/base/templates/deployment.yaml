@@ -20,25 +20,25 @@ spec:
       {{- include "base.selectorLabels" . | nindent 6 }}
   template:
     metadata:
-      {{- if .Values.podAnnotations }}
+      {{- if .Values.deployment.podAnnotations }}
       annotations:
-        {{- toYaml .Values.podAnnotations | nindent 8 }}
+        {{- toYaml .Values.deployment.podAnnotations | nindent 8 }}
       {{- end }}
       labels:
         {{- include "base.selectorLabels" . | nindent 8 }}
     spec:
-      {{- if .Values.imagePullSecrets }}
+      {{- if .Values.deployment.imagePullSecrets }}
       imagePullSecrets:
-        {{- toYaml .Values.imagePullSecrets | nindent 8 }}
+        {{- toYaml .Values.deployment.imagePullSecrets | nindent 8 }}
       {{- end }}
       serviceAccountName: {{ include "base.serviceAccountName" . }}
       securityContext:
-        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+        {{- toYaml .Values.deployment.podSecurityContext | nindent 8 }}
       volumes:
         - name: app-log
           emptyDir: {}
-      {{- if .Values.volumes }}
-        {{- range .Values.volumes }}
+      {{- if .Values.deployment.volumes }}
+        {{- range .Values.deployment.volumes }}
         - name: {{ .name }}
           {{- if .persistentVolumeClaim }}
           persistentVolumeClaim:
@@ -58,19 +58,19 @@ spec:
           {{- end }}
         {{- end }}
       {{- end }}
-      {{- if .Values.initContainers }}
+      {{- if .Values.deployment.initContainers }}
       initContainers:
-        {{- toYaml .Values.initContainers | nindent 8 }}
+        {{- toYaml .Values.deployment.initContainers | nindent 8 }}
       {{- end }}
       containers:
         - name: {{ .Chart.Name }}
           securityContext:
-            {{- toYaml .Values.securityContext | nindent 12 }}
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
-          imagePullPolicy: {{ .Values.image.pullPolicy }}
-          {{- if .Values.envVar }}
+            {{- toYaml .Values.deployment.securityContext | nindent 12 }}
+          image: "{{ .Values.deployment.image.repository }}:{{ .Values.deployment.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.deployment.image.pullPolicy }}
+          {{- if .Values.deployment.envVar }}
           env:
-          {{- range .Values.envVar }}
+          {{- range .Values.deployment.envVar }}
             {{- if or (and (eq .name "SPRING_PROFILES_ACTIVE") (eq .value nil)) (and (eq .name "SPRING_PROFILES_ACTIVE") (eq .value "")) }}
             - name: {{ .name }}
               {{- if or (eq $env "prd") (eq $env "prod") (eq $env "dr")}}
@@ -100,30 +100,30 @@ spec:
             - name: http
               containerPort: {{ .Values.service.targetPort }}
               protocol: TCP
-          {{- if .Values.livenessProbe }}
+          {{- if .Values.deployment.livenessProbe }}
           livenessProbe:
-            {{- toYaml .Values.livenessProbe | nindent 12 }}
+            {{- toYaml .Values.deployment.livenessProbe | nindent 12 }}
           {{- end }}
-          {{- if .Values.readinessProbe }}
+          {{- if .Values.deployment.readinessProbe }}
           readinessProbe:
-            {{- toYaml .Values.readinessProbe | nindent 12 }}
+            {{- toYaml .Values.deployment.readinessProbe | nindent 12 }}
           {{- end }}
-          {{- if .Values.startupProbe }}
+          {{- if .Values.deployment.startupProbe }}
           startupProbe:
-            {{- toYaml .Values.startupProbe | nindent 12 }}
+            {{- toYaml .Values.deployment.startupProbe | nindent 12 }}
           {{- end }}
           resources:
-            {{- toYaml .Values.resources | nindent 12 }}
-      {{- if .Values.nodeSelector }}
+            {{- toYaml .Values.deployment.resources | nindent 12 }}
+      {{- if .Values.deployment.nodeSelector }}
       nodeSelector:
-        {{- toYaml . | nindent 8 }}
+        {{- toYaml .Values.deployment.nodeSelector | nindent 8 }}
       {{- end }}
-      {{- if .Values.affinity }}
+      {{- if .Values.deployment.affinity }}
       affinity:
-        {{- toYaml . | nindent 8 }}
+        {{- toYaml .Values.deployment.affinity | nindent 8 }}
       {{- end }}
-      {{- if .Values.tolerations }}
+      {{- if .Values.deployment.tolerations }}
       tolerations:
-        {{- toYaml . | nindent 8 }}
+        {{- toYaml .Values.deployment.tolerations | nindent 8 }}
       {{- end }}
 {{- end }}

@@ -2,20 +2,94 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 env: uat
+nameOverride: ""
+fullnameOverride: ""
+labels: []
 
 deployment:
   create: true
   replicaCount: 1
+  image:
+    repository:
+    pullPolicy: Always
+    # Overrides the image tag whose default is the chart appVersion.
+    tag:
+  imagePullSecrets: []
+  podAnnotations: {}
+  podSecurityContext: {}
+    # fsGroup: 2000
 
-image:
-  repository:
-  pullPolicy: Always
-  # Overrides the image tag whose default is the chart appVersion.
-  tag:
+  securityContext:
+    # capabilities:
+    #   drop:
+    #   - ALL
+    # readOnlyRootFilesystem: true
+     runAsUser: 1000
+     runAsNonRoot: true
 
-imagePullSecrets: []
-nameOverride: ""
-fullnameOverride: ""
+  nodeSelector: { }
+
+  tolerations: [ ]
+
+  affinity: { }
+
+  volumes: { }
+  #  - name: jwt-rsa-keystore
+  #    secret:
+  #      secretName: jwt-rsa
+  #      items:
+  #        - key: rsa.pem
+  #          path: rsa.pem
+  #  - name: order-service-cm
+  #    configMap:
+  #      name: order-service
+  #  - name: order-service-secret
+  #    secret:
+  #      secretName: order-service
+
+  volumeMounts: { }
+  #  - mountPath: "/etc/keystore"
+  #    name: jwt-rsa-keystore
+  #    readOnly: true
+
+  readinessProbe: { }
+  #  httpGet:
+  #    port: 8080
+  #    path: /actuator/health
+  #  failureThreshold: 5
+  #  successThreshold: 3
+  #  initialDelaySeconds: 90
+  #  periodSeconds: 10
+  livenessProbe: { }
+  startupProbe: { }
+  envVar: { }
+  #  - name: SPRING_PROFILES_ACTIVE
+  #    value: k8s
+  #  - name: DB_USERNAME
+  #    valueFrom:
+  #      secretKeyRef:
+  #        key: "spring.datasource.username"
+  #        name: db-secret
+  #  - name: DB_PASSWORD
+  #    valueFrom:
+  #      secretKeyRef:
+  #        key: "spring.datasource.password"
+  #        name: db-secret
+  #  - name: JWT_KEY_PATH
+  #    value: "file:/etc/keystore/rsa.pem"
+  #  - name: SECRET_NAME
+  #    value: db-secret
+
+  initContainers: { }
+
+  # resource for application, if want to set it for sidecar, please define a new root variable for each sidecar.
+  resources: { }
+  # limits:
+  #   memory: 128Mi
+  #   cpu: 100m
+  # requests:
+  #   memory: 128Mi
+  #   cpu: 100m
 
 serviceAccount:
   # Specifies whether a service account should be created
@@ -26,19 +100,6 @@ serviceAccount:
   # If not set and create is true, a name is generated using the fullname template
   # By default, if not specified or it's empty, will generate a name with pattern of {{nameOverride}}-sa
   name: ""
-
-podAnnotations: {}
-
-podSecurityContext: {}
-  # fsGroup: 2000
-
-securityContext:
-  # capabilities:
-  #   drop:
-  #   - ALL
-  # readOnlyRootFilesystem: true
-   runAsNonRoot: true
-   runAsUser: 1000
 
 service:
   create: true
@@ -64,7 +125,7 @@ ingress:
 #     nginx.ingress.kubernetes.io/ssl-redirect: true
      nginx.ingress.kubernetes.io/use-regex: true
   hosts:
-    - host: gw.it-meta.space
+    - host:
       paths:
         - path: /
 #          pathType: ImplementationSpecific
@@ -74,23 +135,12 @@ ingress:
             serviceName:
             port: 80
   tls:
-    - secretName: gw-tls
+    - secretName:
       hosts:
-        - gw.it-meta.space
+        -
   rewrite:
     target: "/$1"
-# resource for application, if want to set it for sidecar, please define a new root variable for each sidecar.
-resources: {}
-  # We usually recommend not to specify default resources and to leave this as a conscious
-  # choice for the user. This also increases chances charts run on environments with little
-  # resources, such as Minikube. If you do want to specify resources, uncomment the following
-  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
-  # limits:
-  #   cpu: 100m
-  #   memory: 128Mi
-  # requests:
-  #   cpu: 100m
-  #   memory: 128Mi
+
 
 autoscaling:
   enabled: false
@@ -98,64 +148,6 @@ autoscaling:
   maxReplicas: 100
 #  targetCPUUtilizationPercentage: 80
   targetMemoryUtilizationPercentage: 80
-
-nodeSelector: {}
-
-tolerations: []
-
-affinity: {}
-
-volumes: {}
-#  - name: jwt-rsa-keystore
-#    secret:
-#      secretName: jwt-rsa
-#      items:
-#        - key: rsa.pem
-#          path: rsa.pem
-#  - name: order-service-cm
-#    configMap:
-#      name: order-service
-#  - name: order-service-secret
-#    secret:
-#      secretName: order-service
-
-volumeMounts: {}
-#  - mountPath: "/etc/keystore"
-#    name: jwt-rsa-keystore
-#    readOnly: true
-
-readinessProbe: {}
-#  httpGet:
-#    port: 8080
-#    path: /actuator/health
-#  failureThreshold: 5
-#  successThreshold: 3
-#  initialDelaySeconds: 90
-#  periodSeconds: 10
-livenessProbe: {}
-startupProbe: {}
-
-labels: []
-
-envVar: {}
-#  - name: SPRING_PROFILES_ACTIVE
-#    value: k8s
-#  - name: DB_USERNAME
-#    valueFrom:
-#      secretKeyRef:
-#        key: "spring.datasource.username"
-#        name: db-secret
-#  - name: DB_PASSWORD
-#    valueFrom:
-#      secretKeyRef:
-#        key: "spring.datasource.password"
-#        name: db-secret
-#  - name: JWT_KEY_PATH
-#    value: "file:/etc/keystore/rsa.pem"
-#  - name: SECRET_NAME
-#    value: db-secret
-
-initContainers: {}
 
 # Storage class based only
 persistentVolumes:
@@ -199,3 +191,15 @@ roleBinding:
     - kind: ServiceAccount
       name:
       namespace:
+
+configMap:
+  create: false
+  data:
+    application-k8s.yaml: |-
+      spring:
+        datasource:
+          url: jdbc:mysql://192.168.179.1:3306/order?charset=utf8
+        data:
+          redis:
+              host: redis-headless.default.svc.it-meta.space
+              port: 6379
