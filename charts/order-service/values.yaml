@@ -24,6 +24,8 @@ base:
       - kind: ServiceAccount
         name: default
   deployment:
+    image:
+      repository: akjamie/bookstore-order-service
     envVar:
       - name: SPRING_PROFILES_ACTIVE
         value:
@@ -41,6 +43,10 @@ base:
         value: "file:/etc/keystore/rsa.pem"
       - name: SECRET_NAME
         value: db-secret
+      - name: CONFIG_MAP_NAME
+        value: order-service-uat-cm
+#      - name: spring.cloud.bootstrap.enabled
+#        value: "true"
     volumes:
       - name: jwt-rsa-keystore
         secret:
@@ -81,8 +87,8 @@ base:
       periodSeconds: 10
     resources:
       limits:
-        cpu: 100m
-        memory: 128Mi
+        cpu: 500m
+        memory: 360Mi
       requests:
         cpu: 100m
         memory: 128Mi
@@ -99,17 +105,20 @@ base:
             backend:
               serviceName:
               port: 80
+    tls:
+      - hosts:
+        - gw.it-meta.space
+        secretName: gw-tls
     rewrite:
       target: "/$1"
   configMap:
     create: true
     data:
-      application-k8s.yaml: |-
+      application.yaml: |-
         spring:
           datasource:
             url: jdbc:mysql://192.168.179.1:3306/order?charset=utf8
           data:
             redis:
-                host: redis-headless.default.svc.it-meta.space
-                port: 6379
-
+              host: redis-headless.default.svc.it-meta.space
+              port: 6379

@@ -32,8 +32,10 @@ spec:
         {{- toYaml .Values.deployment.imagePullSecrets | nindent 8 }}
       {{- end }}
       serviceAccountName: {{ include "base.serviceAccountName" . }}
+      {{- with .Values.deployment.podSecurityContext}}
       securityContext:
-        {{- toYaml .Values.deployment.podSecurityContext | nindent 8 }}
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       volumes:
         - name: app-log
           emptyDir: {}
@@ -58,14 +60,16 @@ spec:
           {{- end }}
         {{- end }}
       {{- end }}
-      {{- if .Values.deployment.initContainers }}
+      {{- with .Values.deployment.initContainers }}
       initContainers:
-        {{- toYaml .Values.deployment.initContainers | nindent 8 }}
+        {{- toYaml . | nindent 8 }}
       {{- end }}
       containers:
-        - name: {{ .Chart.Name }}
+        - name: {{ include "base.name" . }}
+          {{- with .Values.deployment.securityContext }}
           securityContext:
-            {{- toYaml .Values.deployment.securityContext | nindent 12 }}
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
           image: "{{ .Values.deployment.image.repository }}:{{ .Values.deployment.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.deployment.image.pullPolicy }}
           {{- if .Values.deployment.envVar }}
@@ -100,25 +104,31 @@ spec:
             - name: http
               containerPort: {{ .Values.service.targetPort }}
               protocol: TCP
-          {{- if .Values.deployment.livenessProbe }}
+          {{- with .Values.deployment.livenessProbe }}
           livenessProbe:
-            {{- toYaml .Values.deployment.livenessProbe | nindent 12 }}
+            {{- toYaml . | nindent 12 }}
           {{- end }}
-          {{- if .Values.deployment.readinessProbe }}
+          {{- with .Values.deployment.readinessProbe }}
           readinessProbe:
-            {{- toYaml .Values.deployment.readinessProbe | nindent 12 }}
+            {{- toYaml . | nindent 12 }}
           {{- end }}
-          {{- if .Values.deployment.startupProbe }}
+          {{- with .Values.deployment.startupProbe }}
           startupProbe:
-            {{- toYaml .Values.deployment.startupProbe | nindent 12 }}
+            {{- toYaml . | nindent 12 }}
           {{- end }}
+          {{- with .Values.deployment.resources }}
           resources:
-            {{- toYaml .Values.deployment.resources | nindent 12 }}
-      {{- if .Values.deployment.nodeSelector }}
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.deployment.volumeMounts }}
+          volumeMounts:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+      {{- with .Values.deployment.nodeSelector }}
       nodeSelector:
         {{- toYaml .Values.deployment.nodeSelector | nindent 8 }}
       {{- end }}
-      {{- if .Values.deployment.affinity }}
+      {{- with .Values.deployment.affinity }}
       affinity:
         {{- toYaml .Values.deployment.affinity | nindent 8 }}
       {{- end }}

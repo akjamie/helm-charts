@@ -33,7 +33,7 @@ deployment:
 
   affinity: { }
 
-  volumes: { }
+  volumes: []
   #  - name: jwt-rsa-keystore
   #    secret:
   #      secretName: jwt-rsa
@@ -47,7 +47,7 @@ deployment:
   #    secret:
   #      secretName: order-service
 
-  volumeMounts: { }
+  volumeMounts: []
   #  - mountPath: "/etc/keystore"
   #    name: jwt-rsa-keystore
   #    readOnly: true
@@ -62,7 +62,7 @@ deployment:
   #  periodSeconds: 10
   livenessProbe: { }
   startupProbe: { }
-  envVar: { }
+  envVar: []
   #  - name: SPRING_PROFILES_ACTIVE
   #    value: k8s
   #  - name: DB_USERNAME
@@ -113,7 +113,7 @@ ingress:
   # By default, will set it as nginx
   className: ""
   annotations:
-     kubernetes.io/ingress.class: nginx
+#     kubernetes.io/ingress.class: nginx
      kubernetes.io/tls-acme: "true"
      nginx.ingress.kubernetes.io/proxy-connect-timeout: "60s"
      nginx.ingress.kubernetes.io/proxy-read-timeout: "60s"
@@ -123,7 +123,7 @@ ingress:
      # Better to consider the pathType=ImplementationSpecific, below is for pathType=Prefix.
      nginx.ingress.kubernetes.io/rewrite-target: /$1
 #     nginx.ingress.kubernetes.io/ssl-redirect: true
-     nginx.ingress.kubernetes.io/use-regex: true
+     nginx.ingress.kubernetes.io/use-regex: "true"
   hosts:
     - host:
       paths:

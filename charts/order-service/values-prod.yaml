@@ -2,8 +2,8 @@ base:
   env: prod
   resources:
    limits:
-     cpu: 100m
-     memory: 256Mi
+     cpu: 1000m
+     memory: 2048Mi
    requests:
      cpu: 100m
      memory: 128Mi
