@@ -28,7 +28,7 @@ base:
       repository: akjamie/bookstore-order-service
     envVar:
       - name: SPRING_PROFILES_ACTIVE
-        value:
+        value: k8s
       - name: DB_USERNAME
         valueFrom:
           secretKeyRef:
@@ -43,10 +43,16 @@ base:
         value: "file:/etc/keystore/rsa.pem"
       - name: SECRET_NAME
         value: db-secret
+      - name: NAMESPACE
+        valueFrom:
+          fieldRef:
+            fieldPath: "metadata.namespace"
       - name: CONFIG_MAP_NAME
         value: order-service-uat-cm
-#      - name: spring.cloud.bootstrap.enabled
-#        value: "true"
+      - name: spring.cloud.bootstrap.enabled
+        value: "true"
+    args:
+      - --spring.cloud.compatibility-verifier.enabled=false
     volumes:
       - name: jwt-rsa-keystore
         secret:
@@ -82,7 +88,7 @@ base:
       httpGet:
         port: 8080
         path: /actuator/health
-      failureThreshold: 30
+      failureThreshold: 40
       successThreshold: 1
       periodSeconds: 10
     resources:

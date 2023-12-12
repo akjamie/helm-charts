@@ -72,6 +72,9 @@ spec:
           {{- end }}
           image: "{{ .Values.deployment.image.repository }}:{{ .Values.deployment.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.deployment.image.pullPolicy }}
+          {{- if .Values.deployment.args }}
+          args: {{ .Values.deployment.args }}
+          {{- end }}
           {{- if .Values.deployment.envVar }}
           env:
           {{- range .Values.deployment.envVar }}
@@ -97,6 +100,11 @@ spec:
                   name: {{ .valueFrom.secretKeyRef.name }}
                   {{- end }}
                   key: {{ .valueFrom.secretKeyRef.key }}
+            {{- end }}
+            {{- if and .valueFrom .valueFrom.fieldRef .valueFrom.fieldRef.fieldPath }}
+              valueFrom:
+                fieldRef:
+                  fieldPath: {{ .valueFrom.fieldRef.fieldPath }}
             {{- end }}
           {{- end }}
           {{- end }}
