@@ -70,7 +70,11 @@ spec:
           securityContext:
             {{- toYaml . | nindent 12 }}
           {{- end }}
-          image: "{{ .Values.deployment.image.repository }}:{{ .Values.deployment.image.tag | default .Chart.AppVersion }}"
+          {{- if .Values.deployment.image.tag }}
+          image: "{{ .Values.deployment.image.repository }}:{{.Values.deployment.image.tag }}"
+          {{- else }}
+          image: "{{ .Values.deployment.image.repository }}:{{ default "latest" .Chart.AppVersion }}"
+          {{- end }}
           imagePullPolicy: {{ .Values.deployment.image.pullPolicy }}
           {{- if .Values.deployment.args }}
           args: {{ .Values.deployment.args }}

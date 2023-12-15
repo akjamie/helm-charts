@@ -10,10 +10,10 @@ deployment:
   create: true
   replicaCount: 1
   image:
-    repository:
+#    repository:
     pullPolicy: Always
     # Overrides the image tag whose default is the chart appVersion.
-    tag:
+#    tag:
   imagePullSecrets: []
   podAnnotations: {}
   podSecurityContext: {}
@@ -81,7 +81,7 @@ deployment:
   #  - name: SECRET_NAME
   #    value: db-secret
 
-  initContainers: { }
+  initContainers: []
 
   # resource for application, if want to set it for sidecar, please define a new root variable for each sidecar.
   resources: { }
